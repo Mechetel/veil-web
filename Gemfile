@@ -57,6 +57,6 @@ group :test do
   gem "rack_session_access", "~> 0.2.0"
   gem "rails-controller-testing", "~> 1.0", ">= 1.0.5"
   gem "rspec-rails", "~> 8.0"
-  gem "shoulda-matchers", "~> 6.1"
+  gem "shoulda-matchers", "~> 7.0"
   gem "selenium-webdriver"
 end
