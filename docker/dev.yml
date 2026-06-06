@@ -1,0 +1,71 @@
+volumes:
+  be_gems:
+    name: veil_web_be_gems
+    external: true
+  postgres:
+    name: veil_web_postgres
+    external: true
+
+x-common-rails: &common-rails
+  build:
+    context: dockerfiles
+    dockerfile: be.Dockerfile
+  env_file:
+    - envs/rails-environment-dev.env
+  volumes:
+    - be_gems:/usr/local/bundle
+    - ..:/app
+
+services:
+  be:
+    <<: *common-rails
+    container_name: be
+    command: >
+      /bin/bash -c "
+      rm -f tmp/pids/server.pid &&
+      bundle install &&
+      bundle exec rake db:create &&
+      bundle exec rake db:migrate &&
+      bundle exec rails server -b 0.0.0.0"
+    ports:
+      - 3000:3000
+    env_file:
+      - envs/rails-environment-dev.env
+      - secret-envs/database.env
+      - secret-envs/veil-core.env
+    depends_on:
+      - postgres
+
+  jobs:
+    <<: *common-rails
+    container_name: jobs
+    command: bin/jobs
+    env_file:
+      - envs/rails-environment-dev.env
+      - secret-envs/database.env
+      - secret-envs/veil-core.env
+    depends_on:
+      - postgres
+      - be
+
+  scss:
+    <<: *common-rails
+    container_name: scss
+    command: /bin/bash -c "bundle exec rails dartsass:watch"
+    depends_on:
+      - be
+
+  postgres:
+    container_name: postgres
+    image: postgres:17
+    env_file:
+      - secret-envs/postgres-credentials.env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  # pgadmin:
+  #   image: fenglc/pgadmin4
+  #   ports:
+  #     - 5050:5050
+  #   depends_on:
+  #     - postgres

@@ -1,0 +1,14 @@
+default: &default
+  address:     <%= ENV["VEIL_CORE_ADDRESS"] %>
+  port:        <%= ENV["VEIL_CORE_PORT"] %>
+  token:       <%= ENV["VEIL_CORE_TOKEN"] %>
+  api_version: <%= ENV.fetch("VEIL_CORE_API_VERSION") { "v1" } %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
