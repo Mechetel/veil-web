@@ -1,0 +1,19 @@
+<%# Bulk bar for encode results — mirrors the gallery bulk bar. Select all +
+    "N selected"; when something is selected: Save (count in the label, disabled
+    over the cap) and Delete selected (custom confirm modal). Buttons submit the
+    external #embedding_bulk_form (its checked embedding_ids[]). %>
+<div id="save_bar" class="bulk-bar" data-save-counter-target="bar" hidden>
+  <label><%= check_box_tag "save_select_all", "1", false,
+        data: { action: "save-counter#toggleAll", "save-counter-target": "selectAll" } %> Select all</label>
+  <span class="muted save-bar__count" data-save-counter-target="count">0 selected</span>
+
+  <span class="bulk-bar__spacer"></span>
+
+  <span class="bulk-bar__actions" data-save-counter-target="actions" hidden>
+    <%= submit_tag "Save to gallery", form: "embedding_bulk_form",
+          class: "btn btn--small btn--primary", data: { "save-counter-target": "submit" } %>
+    <%= delete_link(url: bulk_destroy_embeddings_path, method: "post", form: "embedding_bulk_form",
+          label: "Delete selected", title: "Delete selected encodings?",
+          message: "The selected encodings and their stego images will be permanently deleted.") %>
+  </span>
+</div>

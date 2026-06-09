@@ -1,0 +1,34 @@
+<% content_for :title, "Decoding ##{@decoding.id}" %>
+
+<div class="detail">
+  <%= link_to "← Back to studio", root_path, class: "btn" %>
+
+  <div class="detail__meta">
+    <h2>Decoding #<%= @decoding.id %></h2>
+    <%= status_badge(@decoding) %>
+    <span class="muted"><%= @decoding.model_key %></span>
+  </div>
+
+  <% if @decoding.input_image&.file&.attached? %>
+    <figure class="detail__image">
+      <%= image_tag @decoding.input_image.file, class: "detail__img" %>
+      <figcaption class="muted">Stego</figcaption>
+    </figure>
+  <% end %>
+
+  <% if @decoding.in_flight? %>
+    <span class="spinner" aria-label="Processing"></span>
+  <% elsif @decoding.succeeded? %>
+    <div class="detail__message">
+      <p class="muted">Decoded message:</p>
+      <pre class="message"><%= @decoding.message.presence || "(empty)" %></pre>
+    </div>
+  <% elsif @decoding.failed? %>
+    <p class="error"><%= @decoding.error_message %></p>
+  <% end %>
+
+  <div class="detail__actions">
+    <%= delete_link(url: decoding_path(@decoding, redirect: 1), navigate: true, css: "btn btn--danger", title: "Delete this decoding?",
+          message: "This permanently removes the decoding.") %>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+<% form_id = "#{kind}_bulk_form" %>
+<div data-controller="bulk-select">
+  <%= form_with url: bulk_destroy_images_path, method: :post, id: form_id,
+        data: { action: "turbo:submit-end->bulk-select#reset" } do %><% end %>
+
+  <div class="bulk-bar">
+    <label><%= check_box_tag "select_all_#{kind}", "1", false,
+          data: { action: "bulk-select#toggleAll", "bulk-select-target": "selectAll" } %> Select all</label>
+    <span class="muted" data-bulk-select-target="count">0 selected</span>
+
+    <span class="bulk-bar__actions" data-bulk-select-target="actions" hidden>
+      <% if kind == "stego" %>
+        <%= select_tag :model_key, options_for_select(steg_model_options), include_blank: "— model —",
+              form: form_id, data: { action: "bulk-select#refresh", "bulk-select-target": "modelSelect" } %>
+        <%= button_tag "Set model", type: "submit", form: form_id, formaction: bulk_update_model_images_path,
+              formmethod: "post", class: "btn btn--small", data: { "bulk-select-target": "setModelBtn" } %>
+      <% end %>
+      <%= delete_link(url: bulk_destroy_images_path, method: "post", form: form_id,
+            label: "Delete selected", title: "Delete selected images?",
+            message: "The selected images and every operation that uses them will be deleted.") %>
+    </span>
+
+    <span class="bulk-bar__spacer"></span>
+    <% if images.any? %>
+      <%= delete_link(url: all_images_path(kind: kind), label: "Delete all", title: "Delete ALL #{kind} images?",
+            message: "This deletes every #{kind} image AND every operation that uses them.") %>
+    <% end %>
+  </div>
+
+  <div id="<%= kind %>s" class="gallery"><%= render images %></div>
+</div>
+<%= render "images/more", pagy: pagy, kind: kind %>

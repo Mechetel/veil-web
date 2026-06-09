@@ -1,0 +1,7 @@
+<% if params[:cover_page].present? %>
+  <%= turbo_stream.append "covers" do %><%= render @covers %><% end %>
+  <%= turbo_stream.replace "covers_more", partial: "images/more", locals: { pagy: @covers_pagy, kind: "cover" } %>
+<% elsif params[:stego_page].present? %>
+  <%= turbo_stream.append "stegos" do %><%= render @stegos %><% end %>
+  <%= turbo_stream.replace "stegos_more", partial: "images/more", locals: { pagy: @stegos_pagy, kind: "stego" } %>
+<% end %>

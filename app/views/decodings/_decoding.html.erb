@@ -1,0 +1,23 @@
+<%= tag.div id: dom_id(decoding), class: "record record--#{decoding.status}" do %>
+  <header class="record__head">
+    <%= link_to "Decoding ##{decoding.id}", decoding_path(decoding), class: "record__title" %>
+    <span class="record__head-right">
+      <%= status_badge(decoding) %>
+      <%= delete_link(url: decoding_path(decoding), label: "✕", css: "record__del",
+            title: "Delete this decoding?", message: "This permanently removes the decoding.") %>
+    </span>
+  </header>
+
+  <div class="record__meta"><span class="muted"><%= decoding.model_key %></span></div>
+
+  <div class="record__body">
+    <% if decoding.in_flight? %>
+      <span class="spinner" aria-label="Processing"></span>
+    <% elsif decoding.succeeded? %>
+      <p class="muted">Decoded message:</p>
+      <pre class="message"><%= decoding.message.presence || "(empty)" %></pre>
+    <% elsif decoding.failed? %>
+      <p class="error"><%= decoding.error_message %></p>
+    <% end %>
+  </div>
+<% end %>

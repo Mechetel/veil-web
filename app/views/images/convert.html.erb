@@ -1,0 +1,19 @@
+<%= turbo_frame_tag :remote_modal, target: :_top do %>
+  <dialog class="modal" data-controller="modal"
+          data-action="click->modal#backdrop close->modal#cleanup turbo:submit-end@window->modal#submitEnd">
+    <div class="modal__box">
+      <h3 class="modal__title">Convert to stego?</h3>
+      <p class="modal__message">This moves the image into your Stego collection (and counts toward the stego limit). Pick the model it was created with so you can decode it later.</p>
+      <%= form_with url: image_path(@image), method: :patch, class: "form" do %>
+        <%= hidden_field_tag :kind, "stego" %>
+        <label class="field">Model
+          <%= select_tag :model_key, options_for_select(steg_model_options, @image.model_key), include_blank: "— model —" %>
+        </label>
+        <div class="modal__actions">
+          <button type="button" class="btn" data-action="modal#close">Cancel</button>
+          <%= submit_tag "Convert", class: "btn btn--primary" %>
+        </div>
+      <% end %>
+    </div>
+  </dialog>
+<% end %>

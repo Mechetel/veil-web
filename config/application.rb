@@ -1,5 +1,18 @@
 require_relative "boot"
 
+# Bare (non-Docker) dev/test: load the same dev secret-envs that docker compose
+# injects via `env_file:` and Kamal injects via `.kamal/secrets`. Runs before
+# Rails reads config/database.yml and config/veil.yml. Never overwrites real ENV
+# (so docker compose / Kamal values win), and is a no-op in production.
+unless ENV["RAILS_ENV"] == "production"
+  begin
+    require "dotenv"
+    Dotenv.load(File.expand_path("../docker/secret-envs/veil-core.env", __dir__))
+  rescue LoadError
+    # dotenv is dev/test-only; ignore if absent.
+  end
+end
+
 require "rails/all"
 
 # Require the gems listed in Gemfile, including any gems

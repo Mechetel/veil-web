@@ -1,0 +1,37 @@
+<% content_for :title, "Analysis ##{@analysis.id}" %>
+
+<div class="detail">
+  <%= link_to "← Back to studio", root_path, class: "btn" %>
+
+  <div class="detail__meta">
+    <h2>Analysis #<%= @analysis.id %></h2>
+    <%= status_badge(@analysis) %>
+    <span class="muted"><%= @analysis.analyzer_key %></span>
+  </div>
+
+  <% if @analysis.input_image&.file&.attached? %>
+    <figure class="detail__image">
+      <%= image_tag @analysis.input_image.file, class: "detail__img" %>
+      <figcaption class="muted">Analyzed image</figcaption>
+    </figure>
+  <% end %>
+
+  <% if @analysis.in_flight? %>
+    <span class="spinner" aria-label="Processing"></span>
+  <% elsif @analysis.succeeded? %>
+    <div class="detail__message">
+      <p>
+        <strong class="verdict verdict--<%= @analysis.label %>"><%= @analysis.label&.titleize %></strong>
+        <span class="muted">p(stego) = <%= number_with_precision(@analysis.prob_stego.to_f, precision: 3) %></span>
+      </p>
+      <div class="prob-bar"><span style="width: <%= (@analysis.prob_stego.to_f * 100).round %>%"></span></div>
+    </div>
+  <% elsif @analysis.failed? %>
+    <p class="error"><%= @analysis.error_message %></p>
+  <% end %>
+
+  <div class="detail__actions">
+    <%= delete_link(url: analysis_path(@analysis, redirect: 1), navigate: true, css: "btn btn--danger", title: "Delete this analysis?",
+          message: "This permanently removes the analysis.") %>
+  </div>
+</div>

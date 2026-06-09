@@ -1,0 +1,39 @@
+<%= tag.div id: dom_id(embedding), class: "record record--#{embedding.status}" do %>
+  <% if embedding.succeeded? && embedding.stego.attached? && !embedding.saved_to_gallery? %>
+    <label class="record__select">
+      <%= check_box_tag "embedding_ids[]", embedding.id, false, form: "embedding_bulk_form",
+            data: { action: "save-counter#refresh", "save-counter-target": "checkbox" } %>
+    </label>
+  <% end %>
+
+  <header class="record__head">
+    <%= link_to "Encoding ##{embedding.id}", embedding_path(embedding), class: "record__title" %>
+    <span class="record__head-right">
+      <%= status_badge(embedding) %>
+      <%= delete_link(url: embedding_path(embedding), label: "✕", css: "record__del",
+            title: "Delete this encoding?", message: "This permanently removes the encoding and its stego image.") %>
+    </span>
+  </header>
+
+  <div class="record__meta"><span class="muted"><%= embedding.model_key %></span></div>
+
+  <div class="record__body">
+    <% if embedding.in_flight? %>
+      <span class="spinner" aria-label="Processing"></span>
+    <% elsif embedding.succeeded? && embedding.stego.attached? %>
+      <%= image_tag embedding.stego, class: "thumb" %>
+      <div class="record__actions">
+        <%= link_to "Download", rails_blob_path(embedding.stego, disposition: "attachment"), class: "btn btn--small" %>
+        <% if embedding.saved_to_gallery? %>
+          <span class="badge badge--stego">In gallery</span>
+        <% else %>
+          <%# Save just this stego to the gallery (its model_key is remembered). %>
+          <%= button_to "Save to gallery", save_to_gallery_embeddings_path,
+                params: { embedding_ids: [embedding.id] }, class: "btn btn--small btn--primary" %>
+        <% end %>
+      </div>
+    <% elsif embedding.failed? %>
+      <p class="error"><%= embedding.error_message %></p>
+    <% end %>
+  </div>
+<% end %>

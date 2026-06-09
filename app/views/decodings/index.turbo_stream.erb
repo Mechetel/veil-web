@@ -1,0 +1,2 @@
+<%= turbo_stream.append "decodings" do %><%= render @decodings %><% end %>
+<%= turbo_stream.replace "decodings_more", partial: "decodings/more", locals: { pagy: @decodings_pagy } %>

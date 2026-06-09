@@ -15,6 +15,8 @@ gem "dartsass-rails", "~> 0.5.1"
 
 # Client for the veil-core FastAPI service (see app/models/veil/base.rb).
 gem "activeresource", github: "rails/activeresource", branch: "main"
+gem "bcrypt", "~> 3.1"
+gem "pagy", "~> 43.5", ">= 43.5.5"
 
 gem "solid_cache"
 gem "solid_cable"
@@ -29,6 +31,7 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 
 group :development, :test do
   # gem "annotate", "~> 3.2"
+  gem "dotenv", require: false # load docker/secret-envs in bare (non-Docker) dev/test
   gem "brakeman", "~> 8.0", ">= 8.0.4", require: false
   gem "faker", "~> 3.8"
   gem "fasterer", "~> 0.11.0"

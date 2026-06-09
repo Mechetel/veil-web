@@ -1,0 +1,14 @@
+<% multiple = local_assigns.fetch(:multiple, false) %>
+<div class="file-field" data-controller="file-input">
+  <label class="file-field__label">
+    <%= file_field_tag name, accept: local_assigns.fetch(:accept, "image/*"), multiple: multiple,
+          required: local_assigns.fetch(:required, false),
+          class: "file-field__input", data: { "file-input-target": "input", action: "file-input#preview" } %>
+    <span class="file-field__cta">
+      <span class="file-field__icon">⬆</span>
+      <strong>Click to choose</strong> or drop image<%= "s" if multiple %>
+      <span class="file-field__names" data-file-input-target="names">no file selected</span>
+    </span>
+  </label>
+  <div class="file-field__previews" data-file-input-target="previews"></div>
+</div>

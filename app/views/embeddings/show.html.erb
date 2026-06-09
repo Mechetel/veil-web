@@ -1,0 +1,48 @@
+<% content_for :title, "Encoding ##{@embedding.id}" %>
+
+<div class="detail">
+  <%= link_to "← Back to studio", root_path, class: "btn" %>
+
+  <div class="detail__meta">
+    <h2>Encoding #<%= @embedding.id %></h2>
+    <%= status_badge(@embedding) %>
+    <span class="muted"><%= @embedding.model_key %></span>
+  </div>
+
+  <% if @embedding.in_flight? %>
+    <span class="spinner" aria-label="Processing"></span>
+  <% elsif @embedding.failed? %>
+    <p class="error"><%= @embedding.error_message %></p>
+  <% end %>
+
+  <div class="detail__images">
+    <% if @embedding.input_image&.file&.attached? %>
+      <figure class="detail__image">
+        <%= image_tag @embedding.input_image.file, class: "detail__img" %>
+        <figcaption class="muted">Cover</figcaption>
+      </figure>
+    <% end %>
+    <% if @embedding.succeeded? && @embedding.stego.attached? %>
+      <figure class="detail__image">
+        <%= image_tag @embedding.stego, class: "detail__img" %>
+        <figcaption class="muted">Stego</figcaption>
+      </figure>
+    <% end %>
+  </div>
+
+  <div class="detail__actions">
+    <% if @embedding.succeeded? && @embedding.stego.attached? %>
+      <%= link_to "Download", rails_blob_path(@embedding.stego, disposition: "attachment"), class: "btn" %>
+      <% if @embedding.saved_to_gallery? %>
+        <span class="badge badge--stego">In gallery</span>
+      <% else %>
+        <%# Plain (non-Turbo) submit so the page reloads back here showing "In gallery". %>
+        <%= button_to "Save to gallery", save_to_gallery_embeddings_path,
+              params: { embedding_ids: [@embedding.id] }, class: "btn btn--primary",
+              form: { data: { turbo: false } } %>
+      <% end %>
+    <% end %>
+    <%= delete_link(url: embedding_path(@embedding, redirect: 1), navigate: true, css: "btn btn--danger", title: "Delete this encoding?",
+          message: "This permanently removes the encoding and its stego image.") %>
+  </div>
+</div>

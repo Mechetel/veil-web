@@ -1,0 +1,26 @@
+<%# Rendered into the layout's remote_modal frame as a native <dialog>.
+    Self-contained delete: omit form_id → the confirm button is its own button_to.
+    Bulk: pass form_id → the confirm button submits that external page form
+    (carrying its checked image_ids[]) via form=/formaction. target: :_top so the
+    action performs a real top-level Turbo Stream request, not trapped in the frame. %>
+<%= turbo_frame_tag :remote_modal, target: :_top do %>
+  <dialog class="modal" data-controller="modal"
+          data-action="click->modal#backdrop close->modal#cleanup turbo:submit-end@window->modal#submitEnd">
+    <div class="modal__box">
+      <h3 class="modal__title"><%= title %></h3>
+      <% if message.present? %><p class="modal__message"><%= message %></p><% end %>
+      <div class="modal__actions">
+        <button type="button" class="btn" data-action="modal#close">Cancel</button>
+        <% if form_id.present? %>
+          <%= button_tag confirm_label, type: "submit", form: form_id, formaction: url,
+                formmethod: "post", class: "btn btn--danger" %>
+        <% else %>
+          <%# navigate: submit natively (data-turbo="false") so the controller's
+              redirect does a full-page navigation to the index — not a Turbo Stream. %>
+          <%= button_to confirm_label, url, method: method.to_sym, class: "btn btn--danger",
+                form: (local_assigns[:navigate] ? { data: { turbo: false } } : {}) %>
+        <% end %>
+      </div>
+    </div>
+  </dialog>
+<% end %>

@@ -1,0 +1,2 @@
+<%= turbo_stream.append "analyses" do %><%= render @analyses %><% end %>
+<%= turbo_stream.replace "analyses_more", partial: "analyses/more", locals: { pagy: @analyses_pagy } %>

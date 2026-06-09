@@ -1,0 +1,24 @@
+<%= form_with url: images_path, method: :post, multipart: true, id: "gallery_upload",
+      class: "card form", data: { controller: "image-kind" } do %>
+  <h3>Add images to your gallery</h3>
+  <% if local_assigns[:notice].present? %>
+    <p class="muted"><%= notice %></p>
+  <% end %>
+
+  <label class="field">Type
+    <%= select_tag :kind, options_for_select([ [ "Cover", "cover" ], [ "Stego", "stego" ] ], "cover"),
+          data: { action: "image-kind#toggle", "image-kind-target": "kind" } %>
+  </label>
+
+  <div class="field" data-image-kind-target="modelField" hidden>
+    <label>Created with model
+      <%= select_tag :model_key, options_for_select(steg_model_options), include_blank: "— model —" %>
+    </label>
+  </div>
+
+  <label class="field">Images <span class="muted">(select one or many)</span>
+    <%= file_field_tag "images[]", accept: "image/*", multiple: true, required: true %>
+  </label>
+
+  <%= submit_tag "Add to gallery", class: "btn btn--primary" %>
+<% end %>

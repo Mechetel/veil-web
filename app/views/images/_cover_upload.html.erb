@@ -1,0 +1,6 @@
+<%= form_with url: images_path, method: :post, multipart: true, id: "cover_upload", class: "card form" do %>
+  <h3>Add cover images</h3>
+  <%= hidden_field_tag :kind, "cover" %>
+  <%= render "shared/file_field", name: "images[]", multiple: true, required: true %>
+  <%= submit_tag "Add to gallery", class: "btn btn--primary" %>
+<% end %>

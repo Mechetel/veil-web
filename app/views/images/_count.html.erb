@@ -1,0 +1,6 @@
+<% used  = (kind == "cover") ? Current.user.cover_count : Current.user.stego_count %>
+<% limit = (kind == "cover") ? User::COVER_LIMIT : User::STEGO_LIMIT %>
+<% full  = (kind == "cover") ? Current.user.cover_full? : Current.user.stego_full? %>
+<p id="<%= kind %>_count" class="gallery-count muted <%= "is-over" if full %>">
+  <%= used %> / <%= Current.user.admin? ? "∞" : limit %> <%= kind %> images
+</p>
