@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Rais 8 Template" %></title>
+    <title><%= content_for(:title) || "Veil" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,6 +18,32 @@
     <%= favicon_link_tag 'favicon.png' %>
   </head>
   <body>
-    <%= yield %>
+    <header class="topbar">
+      <%= link_to "Veil", root_path, class: "topbar__brand" %>
+      <nav class="topbar__nav">
+        <% if authenticated? %>
+          <%= link_to "Studio", root_path %>
+          <%= link_to "Gallery", images_path %>
+          <% if Current.user.admin? %>
+            <%= link_to "Jobs", "/jobs"  %>
+          <% end %>
+          <%= link_to "Profile", profile_path %>
+          <%= button_to "Log out", session_path, method: :delete, class: "topbar__logout" %>
+        <% else %>
+          <%= link_to "Log in", new_session_path %>
+          <%= link_to "Sign up", new_registration_path %>
+        <% end %>
+      </nav>
+    </header>
+
+    <div id="flash" class="flashes"><%= render "shared/flash" %></div>
+
+    <main class="container">
+      <%= yield %>
+    </main>
+
+    <%# target: "_top" so actions inside the modal (delete/convert) drive the whole
+        page — a redirect navigates instead of being trapped ("Content missing"). %>
+    <%= turbo_frame_tag "remote_modal", target: "_top" %>
   </body>
 </html>

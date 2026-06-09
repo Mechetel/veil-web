@@ -1,0 +1,31 @@
+<%= tag.div id: dom_id(image), class: "gallery__item" do %>
+  <label class="gallery__select">
+    <%= check_box_tag "image_ids[]", image.id, false, form: "#{image.kind}_bulk_form",
+          data: { "bulk-select-target": "checkbox", action: "bulk-select#refresh" } %>
+  </label>
+
+  <%= link_to image_path(image), class: "gallery__thumb" do %>
+    <%= image_tag image.file, class: "thumb", loading: "lazy" %>
+  <% end %>
+
+  <div class="gallery__meta">
+    <span class="badge badge--<%= image.kind %>"><%= image.kind %></span>
+    <span class="muted">#<%= image.id %></span>
+  </div>
+
+  <% if image.stego? %>
+    <%= form_with url: image_path(image), method: :patch, class: "gallery__inline", data: { controller: "autosubmit" } do %>
+      <%= select_tag :model_key, options_for_select(steg_model_options, image.model_key),
+            include_blank: "— model —", data: { action: "change->autosubmit#submit" } %>
+    <% end %>
+  <% end %>
+
+  <div class="gallery__actions">
+    <%= link_to "Download", rails_blob_path(image.file, disposition: "attachment"), class: "btn btn--small" %>
+    <% if image.cover? %>
+      <%= link_to "→ Stego", convert_image_path(image), data: { turbo_frame: "remote_modal" }, class: "btn btn--small" %>
+    <% end %>
+    <%= delete_link(url: image_path(image), title: "Delete this image?",
+          message: "Deleting this image also deletes every operation that uses it.") %>
+  </div>
+<% end %>

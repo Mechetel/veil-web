@@ -57,8 +57,14 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Host for generated URLs. Used by mailers AND by Turbo Stream broadcasts, which
+  # render outside a request (no host inferred) — without this, image_tag/url_for in
+  # broadcast partials (e.g. the encode result card) raise "Missing host" and the
+  # live card update silently fails. Set APP_HOST at deploy time.
+  app_host = { host: ENV.fetch("APP_HOST", "example.com") }
+  config.action_mailer.default_url_options = app_host
+  config.action_controller.default_url_options = app_host
+  Rails.application.routes.default_url_options = app_host
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {

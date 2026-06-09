@@ -1,0 +1,10 @@
+<% content_for :title, "Decodings" %>
+<div class="records__head">
+  <h1>Decodings</h1>
+  <%= delete_link(url: all_decodings_path, label: "Delete all", title: "Delete ALL decodings?",
+        message: "This permanently removes all your decodings.") %>
+</div>
+<%= link_to "← Studio", root_path, class: "btn btn--small" %>
+<%= turbo_stream_from Current.user, "decodings" %>
+<div id="decodings" class="records"><%= render @decodings %></div>
+<%= render "decodings/more", pagy: @decodings_pagy %>

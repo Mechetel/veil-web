@@ -1,0 +1,15 @@
+<%= form_with url: embeddings_path, method: :post, multipart: true, id: "embedding_form", class: "card form" do %>
+  <h2>Encode a message</h2>
+
+  <label class="field">Steganography model
+    <%= select_tag :model_key, options_for_select(steg_model_options), prompt: "— choose a model —", required: true %>
+  </label>
+
+  <label class="field">Secret message
+    <%= text_area_tag :message, nil, rows: 3, placeholder: "Text to hide inside the cover image", required: true %>
+  </label>
+
+  <%= render "shared/image_source", kinds: %w[cover] %>
+
+  <%= submit_tag "Encode", class: "btn btn--primary" %>
+<% end %>

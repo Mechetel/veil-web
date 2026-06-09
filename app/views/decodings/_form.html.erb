@@ -1,0 +1,11 @@
+<%= form_with url: decodings_path, method: :post, multipart: true, id: "decoding_form", class: "card form" do %>
+  <h2>Decode a message</h2>
+
+  <label class="field">Steganography model
+    <%= select_tag :model_key, options_for_select(steg_model_options), prompt: "— choose the model used to encode —", required: true %>
+  </label>
+
+  <%= render "shared/image_source", kinds: %w[stego] %>
+
+  <%= submit_tag "Decode", class: "btn btn--primary" %>
+<% end %>

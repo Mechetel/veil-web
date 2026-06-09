@@ -1,0 +1,10 @@
+<% content_for :title, "Analyses" %>
+<div class="records__head">
+  <h1>Analyses</h1>
+  <%= delete_link(url: all_analyses_path, label: "Delete all", title: "Delete ALL analyses?",
+        message: "This permanently removes all your analyses.") %>
+</div>
+<%= link_to "← Studio", root_path, class: "btn btn--small" %>
+<%= turbo_stream_from Current.user, "analyses" %>
+<div id="analyses" class="records"><%= render @analyses %></div>
+<%= render "analyses/more", pagy: @analyses_pagy %>

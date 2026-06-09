@@ -1,0 +1,6 @@
+<div id="embeddings_more" class="load-more">
+  <% if pagy&.next %>
+    <%= button_to "Load more", embeddings_path(page: pagy.next), method: :get,
+          form: { data: { turbo_stream: true } }, class: "btn" %>
+  <% end %>
+</div>

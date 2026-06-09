@@ -1,0 +1,18 @@
+<div class="picker">
+  <% if images.any? %>
+    <% images.each do |img| %>
+      <label class="picker__item">
+        <%= radio_button_tag :image_id, img.id, false,
+              data: { action: "image-source#previewSelected",
+                      "preview-url": url_for(img.file), "model-key": img.model_key } %>
+        <span class="picker__thumb"><%= image_tag img.file, loading: "lazy" %></span>
+        <span class="picker__meta">
+          <span class="badge badge--<%= img.kind %>"><%= img.kind %></span>
+          #<%= img.id %><% if img.model_key.present? %> · <%= img.model_key %><% end %>
+        </span>
+      </label>
+    <% end %>
+  <% else %>
+    <p class="muted">No images yet — upload one, or add images in the <%= link_to "Gallery", images_path %>.</p>
+  <% end %>
+</div>

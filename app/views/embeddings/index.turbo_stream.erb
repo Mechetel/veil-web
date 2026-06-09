@@ -1,0 +1,2 @@
+<%= turbo_stream.append "embeddings" do %><%= render @embeddings %><% end %>
+<%= turbo_stream.replace "embeddings_more", partial: "embeddings/more", locals: { pagy: @embeddings_pagy } %>

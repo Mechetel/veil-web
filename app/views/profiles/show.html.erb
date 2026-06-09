@@ -1,0 +1,24 @@
+<% content_for :title, "Profile" %>
+<div class="profile card">
+  <div class="profile__head">
+    <%= image_tag avatar_path, class: "avatar", alt: "avatar", width: 80, height: 80 %>
+    <div>
+      <h1><%= @user.display_name %></h1>
+      <p class="muted"><%= @user.email_address %> · <%= @user.role %></p>
+    </div>
+  </div>
+
+  <ul class="profile__stats">
+    <li><strong><%= @user.cover_count %> / <%= User::COVER_LIMIT %></strong> covers</li>
+    <li><strong><%= @user.stego_count %> / <%= User::STEGO_LIMIT %></strong> stegos</li>
+    <li><strong><%= @user.embeddings.count %></strong> encodings</li>
+    <li><strong><%= @user.decodings.count %></strong> decodings</li>
+    <li><strong><%= @user.analyses.count %></strong> analyses</li>
+  </ul>
+
+  <div class="profile__actions">
+    <%= link_to "Edit profile", edit_profile_path, class: "btn btn--primary" %>
+    <%= link_to "Download avatar", avatar_path(disposition: "attachment"), class: "btn" %>
+    <%= button_to "Log out", session_path, method: :delete, class: "btn btn--danger" %>
+  </div>
+</div>

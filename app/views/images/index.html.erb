@@ -1,0 +1,21 @@
+<% content_for :title, "Gallery" %>
+<h1>Gallery</h1>
+
+<div class="tabs" data-controller="tabs">
+  <nav class="tabs__nav">
+    <button type="button" class="tabs__btn is-active" data-tabs-target="btn" data-action="tabs#show" data-panel="covers">Covers</button>
+    <button type="button" class="tabs__btn" data-tabs-target="btn" data-action="tabs#show" data-panel="stegos">Stegos</button>
+  </nav>
+
+  <section class="tabs__panel" data-tabs-target="panel" data-panel="covers">
+    <%= render "images/count", kind: "cover" %>
+    <%= render "images/cover_upload" %>
+    <%= render "images/collection", kind: "cover", images: @covers, pagy: @covers_pagy %>
+  </section>
+
+  <section class="tabs__panel" data-tabs-target="panel" data-panel="stegos" hidden>
+    <%= render "images/count", kind: "stego" %>
+    <%= render "images/stego_upload" %>
+    <%= render "images/collection", kind: "stego", images: @stegos, pagy: @stegos_pagy %>
+  </section>
+</div>

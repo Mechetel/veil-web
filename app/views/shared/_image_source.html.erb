@@ -1,0 +1,33 @@
+<%# Choose an image: upload a new file (with preview) or pick one from your images.
+    `kinds` filters the picker (encode→cover, decode→stego, analyze→both). %>
+<% kinds = local_assigns[:kinds] %>
+<% picker_images = Current.user.images.then { |s| kinds ? s.where(kind: kinds) : s }.gallery.with_attached_file.limit(100) %>
+
+<fieldset class="image-source" data-controller="image-source">
+  <legend>Image</legend>
+
+  <div class="image-source__modes">
+    <label><input type="radio" name="image_mode" value="upload" checked
+                  data-action="image-source#choose"> Upload</label>
+    <label><input type="radio" name="image_mode" value="gallery"
+                  data-action="image-source#choose"> From my images</label>
+  </div>
+
+  <div data-image-source-target="upload" class="image-source__panel">
+    <label class="file-field__label">
+      <%= file_field_tag :image, accept: "image/*", class: "file-field__input",
+            data: { "image-source-target": "fileInput", action: "image-source#previewFile" } %>
+      <span class="file-field__cta"><span class="file-field__icon">⬆</span>
+        <strong>Click to choose</strong> or drop an image</span>
+    </label>
+  </div>
+
+  <div data-image-source-target="gallery" class="image-source__panel" hidden>
+    <%= render "shared/image_picker", images: picker_images %>
+  </div>
+
+  <figure class="image-source__preview" data-image-source-target="previewWrap" hidden>
+    <figcaption class="muted">Selected image</figcaption>
+    <img data-image-source-target="preview" alt="Selected image preview">
+  </figure>
+</fieldset>

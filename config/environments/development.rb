@@ -40,6 +40,14 @@ Rails.application.configure do
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
 
+  # Same host for URLs generated outside a request (Turbo Stream broadcasts), so
+  # Active Storage image URLs in broadcast cards point at localhost, not example.org.
+  config.action_controller.default_url_options = { host: "localhost", port: 3000 }
+  Rails.application.routes.default_url_options = { host: "localhost", port: 3000 }
+
+  # View sent emails (e.g. password reset) in the browser at /letter_opener.
+  config.action_mailer.delivery_method = :letter_opener_web
+
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
