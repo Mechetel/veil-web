@@ -24,6 +24,9 @@ module AvatarGenerator
     end
     args << "png:-"
 
+    # Open3.capture3 is called in *array* form (command + separate argv), so no
+    # shell is spawned and shell metacharacters in any argument are inert. The
+    # only user-derived argument (initials) is also restricted to [A-Z0-9] below.
     %w[magick convert].each do |bin|
       out, _err, status = Open3.capture3(bin, *args)
       return out if status.success?
@@ -42,6 +45,8 @@ module AvatarGenerator
     parts = text.to_s.strip.split(/[\s._@-]+/).reject(&:blank?)
     letters = parts.first(2).map { |w| w[0] }.join
     letters = text.to_s.gsub(/[^A-Za-z0-9]/, "")[0, 2] if letters.blank?
-    (letters.presence || "?").upcase
+    # Strip to [A-Z0-9] so the only user-derived value passed to ImageMagick can
+    # never be interpreted as an option/flag (no leading "-", no metacharacters).
+    letters.to_s.gsub(/[^A-Za-z0-9]/, "").upcase.presence || "?"
   end
 end
