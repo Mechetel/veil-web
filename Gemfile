@@ -16,7 +16,7 @@ gem "dartsass-rails", "~> 0.5.1"
 # Client for the veil-core FastAPI service (see app/models/veil/base.rb).
 gem "activeresource", github: "rails/activeresource", branch: "main"
 gem "bcrypt", "~> 3.1"
-gem "pagy", "~> 43.5", ">= 43.5.5"
+gem "pagy", "~> 43.5"
 
 gem "solid_cache"
 gem "solid_cable"
