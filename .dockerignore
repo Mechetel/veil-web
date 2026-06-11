@@ -51,6 +51,9 @@
 # Ignore development files
 /.devcontainer
 
-# Ignore Docker-related files
+# Ignore Docker-related files.
+# /docker is CRITICAL: prod.Dockerfile does `COPY . .` — without this line the
+# docker/secret-envs/*.env files would be baked into the pushed image layers.
 /.dockerignore
 /Dockerfile*
+/docker

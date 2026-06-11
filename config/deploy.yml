@@ -58,6 +58,11 @@ env:
     - VEIL_CORE_API_VERSION
     - VEIL_CALLBACK_TOKEN
   clear:
+    # Public host of THIS app — the server IP (or domain once you have one).
+    # Used by Action Mailer links AND Turbo Stream broadcasts (which render
+    # outside a request); without it broadcast image URLs point at example.com.
+    APP_HOST: WWW.WWW.WWW.WWW
+
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: false
@@ -67,10 +72,6 @@ env:
 
     # Set number of cores available to the application on each server (default: 1).
     # WEB_CONCURRENCY: 2
-
-    # Match this to any external database server to configure Active Record correctly
-    # Use veil-web-db for a db accessory server on same machine via local kamal docker network.
-    DB_HOST: veil-web-db
 
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug

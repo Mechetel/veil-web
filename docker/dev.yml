@@ -1,3 +1,19 @@
+# Local dev stack: Postgres + Rails (be) + Solid Queue worker (jobs) + dartsass
+# watcher (scss). Code is bind-mounted; gems install once into the persisted
+# be_gems volume. Run:  docker compose -f docker/dev.yml up
+#
+# First run only — the named volumes are external and must exist:
+#   docker volume create veil_web_be_gems
+#   docker volume create veil_web_postgres
+#
+# Startup order is health-gated: be waits for postgres to accept connections;
+# jobs/scss wait for be to answer /up (i.e. bundle install + db setup finished),
+# so they never race the shared gems volume.
+#
+# Explicit project name: without it compose derives the name from this file's
+# directory ("docker") and collides with veil-core's dev stack.
+name: veil-web
+
 volumes:
   be_gems:
     name: veil_web_be_gems
@@ -15,17 +31,22 @@ x-common-rails: &common-rails
   volumes:
     - be_gems:/usr/local/bundle
     - ..:/app
+  # Lets containers reach services on the host (e.g. veil-core via
+  # http://host.docker.internal:8000 when core runs bare on the host).
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
 
 services:
   be:
     <<: *common-rails
-    container_name: be
+    container_name: veil-web-be
+    # db:prepare (not create+migrate): no postgres ERROR lines for existing DBs,
+    # and a fresh database gets schema + seeds automatically.
     command: >
       /bin/bash -c "
       rm -f tmp/pids/server.pid &&
       bundle install &&
-      bundle exec rake db:create &&
-      bundle exec rake db:migrate &&
+      bundle exec rails db:prepare &&
       bundle exec rails server -b 0.0.0.0"
     ports:
       - 3000:3000
@@ -34,34 +55,60 @@ services:
       - secret-envs/database.env
       - secret-envs/veil-core.env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    # Fast probes (start_interval) only while booting; once healthy, drop to
+    # every 30s so GET /up doesn't spam the dev logs.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:3000/up || exit 1"]
+      interval: 30s
+      start_period: 300s
+      start_interval: 5s
+      timeout: 3s
+      retries: 5
 
   jobs:
     <<: *common-rails
-    container_name: jobs
+    container_name: veil-web-jobs
     command: bin/jobs
     env_file:
       - envs/rails-environment-dev.env
       - secret-envs/database.env
       - secret-envs/veil-core.env
     depends_on:
-      - postgres
-      - be
+      postgres:
+        condition: service_healthy
+      be:
+        condition: service_healthy
 
   scss:
     <<: *common-rails
-    container_name: scss
+    container_name: veil-web-scss
     command: /bin/bash -c "bundle exec rails dartsass:watch"
     depends_on:
-      - be
+      be:
+        condition: service_healthy
 
   postgres:
-    container_name: postgres
+    # Namespaced: bare "postgres" is a daemon-wide name and collides with other
+    # projects. In-app DATABASE_HOST=postgres still works — that's the compose
+    # SERVICE name (network alias), independent of container_name.
+    container_name: veil-web-postgres
     image: postgres:17
     env_file:
       - secret-envs/postgres-credentials.env
     volumes:
       - postgres:/var/lib/postgresql/data
+    healthcheck:
+      # -d is required: pg_isready defaults the database to the username, and a
+      # probe for a non-existent "dbuser" database makes postgres log a FATAL
+      # line on every check (the check still passes — hence pure log spam).
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-postgres}"]
+      interval: 30s
+      start_period: 30s
+      start_interval: 2s
+      timeout: 3s
+      retries: 5
 
   # pgadmin:
   #   image: fenglc/pgadmin4

@@ -33,14 +33,16 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config imagemagick && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install application gems
-COPY ../../Gemfile Gemfile.lock ./
+# Install application gems.
+# COPY paths are relative to the BUILD CONTEXT (repo root — Kamal builds with
+# context ".") regardless of where this Dockerfile lives.
+COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
-# Copy application code
-COPY ../.. .
+# Copy application code (docker/, .kamal/, secrets etc. excluded via .dockerignore)
+COPY . .
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile rails/ lib/
