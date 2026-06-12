@@ -6,7 +6,12 @@
 </div>
 <%= link_to "← Studio", root_path, class: "btn btn--small" %>
 <%= turbo_stream_from Current.user, "analyses" %>
-<div id="analyses" class="records records--analyses">
-  <%= render partial: "analyses/image_analyses", collection: @images, as: :image %>
+<div data-controller="bulk-select">
+  <%= form_with url: bulk_destroy_analyses_path, method: :post, id: "analysis_bulk_form",
+        data: { action: "turbo:submit-end->bulk-select#reset" } do %><% end %>
+  <%= render "analyses/bulk_bar" %>
+  <div id="analyses" class="records records--analyses">
+    <%= render partial: "analyses/image_analyses", collection: @images, as: :image %>
+  </div>
+  <%= render "analyses/more", pagy: @images_pagy %>
 </div>
-<%= render "analyses/more", pagy: @images_pagy %>

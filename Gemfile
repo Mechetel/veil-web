@@ -11,6 +11,11 @@ gem "turbo-rails", "~> 2.0", ">= 2.0.23"
 gem "stimulus-rails", "~> 1.3", ">= 1.3.4"
 gem "jbuilder", "~> 2.15", ">= 2.15.1"
 gem "image_processing", "~> 2.0", ">= 2.0.2"
+# image_processing 2.x no longer pulls an image backend — without one the Active
+# Storage analyzers silently extract NO width/height. vips is used in Docker
+# (libvips installed there); mini_magick is the fallback on bare macOS dev.
+gem "ruby-vips"
+gem "mini_magick"
 gem "dartsass-rails", "~> 0.5.1"
 
 # Client for the veil-core FastAPI service (see app/models/veil/base.rb).

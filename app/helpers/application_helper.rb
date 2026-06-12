@@ -8,7 +8,9 @@ module ApplicationHelper
     blob = attachment.blob
     format = blob.content_type.to_s.split("/").last.to_s.upcase.sub("JPEG", "JPG")
     dims = begin
-      blob.analyze unless blob.analyzed?
+      # Re-analyze blobs marked analyzed but without dimensions — they were
+      # processed before an analyzer backend (vips/mini_magick) was installed.
+      blob.analyze if !blob.analyzed? || blob.metadata["width"].blank?
       d = blob.metadata.values_at("width", "height").compact
       d.size == 2 ? "#{d[0]}×#{d[1]}" : nil
     rescue StandardError

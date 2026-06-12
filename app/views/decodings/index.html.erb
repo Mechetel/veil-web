@@ -6,5 +6,10 @@
 </div>
 <%= link_to "← Studio", root_path, class: "btn btn--small" %>
 <%= turbo_stream_from Current.user, "decodings" %>
-<div id="decodings" class="records"><%= render @decodings %></div>
-<%= render "decodings/more", pagy: @decodings_pagy %>
+<div data-controller="bulk-select">
+  <%= form_with url: bulk_destroy_decodings_path, method: :post, id: "decoding_bulk_form",
+        data: { action: "turbo:submit-end->bulk-select#reset" } do %><% end %>
+  <%= render "decodings/bulk_bar" %>
+  <div id="decodings" class="records"><%= render @decodings %></div>
+  <%= render "decodings/more", pagy: @decodings_pagy %>
+</div>

@@ -36,10 +36,16 @@ class AnalysesController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         flash.now[:notice] = "#{created.size} #{'analysis'.pluralize(created.size)} queued"
+        # The prepends/replace feed the per-image analyses page (no-ops elsewhere);
+        # the grouped index cards update via the model broadcasts.
         render turbo_stream: [
           turbo_stream.replace("analysis_form", partial: "analyses/form", locals: { analysis: Analysis.new }),
           turbo_stream.update("flash", partial: "shared/flash")
-        ]
+        ] + created.map { |a|
+          turbo_stream.prepend(dom_id_for(input, :all_analyses),
+                               partial: "analyses/selectable_row", locals: { analysis: a })
+        } + [ turbo_stream.replace(dom_id_for(input, :analyses_count),
+                                   partial: "analyses/count_heading", locals: { image: input }) ]
       end
       format.html { redirect_back fallback_location: root_path, notice: "#{created.size} queued" }
     end
@@ -52,9 +58,31 @@ class AnalysesController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         flash.now[:notice] = "Analysis deleted"
-        render turbo_stream: [ turbo_stream.remove(record), turbo_stream.update("flash", partial: "shared/flash") ]
+        render turbo_stream: removal_streams([ record ]) +
+                             [ turbo_stream.update("flash", partial: "shared/flash") ]
       end
       format.html { redirect_to root_path, notice: "Analysis deleted" }
+    end
+  end
+
+  # Delete many analyses at once: by analysis_ids[] (rows on the per-image page)
+  # or by image_ids[] (group cards on the analyze tab — ALL analyses of those images).
+  def bulk_destroy
+    scope = Current.user.analyses
+    records = if params[:analysis_ids].present?
+      scope.where(id: Array(params[:analysis_ids]).compact_blank)
+    else
+      scope.where(input_image_id: Array(params[:image_ids]).compact_blank)
+    end.includes(:input_image).to_a
+
+    records.each(&:destroy)
+    flash.now[:notice] = "Deleted #{records.size} #{'analysis'.pluralize(records.size)}"
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: removal_streams(records) +
+                             [ turbo_stream.update("flash", partial: "shared/flash") ]
+      end
+      format.html { redirect_back fallback_location: root_path, notice: flash.now[:notice] }
     end
   end
 
@@ -78,5 +106,29 @@ class AnalysesController < ApplicationController
     else
       [ selection ].reject(&:blank?)
     end
+  end
+
+  # Streams that clean up every place a deleted analysis appears: its bare row,
+  # its selectable wrapper (per-image page), the image's group card (refreshed
+  # or removed when empty) and the per-image count heading. Absent targets no-op.
+  def removal_streams(records)
+    streams = records.flat_map do |r|
+      [ turbo_stream.remove(r), turbo_stream.remove(dom_id_for(r, :sel)) ]
+    end
+    records.map(&:input_image).compact.uniq.each do |image|
+      streams << if image.analyses.exists?
+        turbo_stream.replace(dom_id_for(image, :analyses),
+                             partial: "analyses/image_analyses", locals: { image: image })
+      else
+        turbo_stream.remove(dom_id_for(image, :analyses))
+      end
+      streams << turbo_stream.replace(dom_id_for(image, :analyses_count),
+                                      partial: "analyses/count_heading", locals: { image: image })
+    end
+    streams
+  end
+
+  def dom_id_for(record, prefix = nil)
+    ActionView::RecordIdentifier.dom_id(record, prefix)
   end
 end

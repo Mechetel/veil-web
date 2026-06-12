@@ -209,6 +209,9 @@ input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px
 .analysis-row__key { font-weight: 600; }
 .analysis-row__spacer { flex: 1; }
 .analysis-row__time { font-size: .72rem; }
+.analysis-row-wrap { display: flex; align-items: center; gap: .5rem; }
+.analysis-row-wrap .analysis-row { flex: 1; }
+.profile-avatar-current { display: flex; align-items: center; gap: .8rem; }
 .prob-bar--mini { display: inline-block; width: 56px; height: 6px; flex: none; }
 .detail__form { width: 100%; max-width: 460px; }
 

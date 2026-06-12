@@ -1,0 +1,10 @@
+<%# Analysis row with a selection checkbox — only on the per-image analyses page.
+    The checkbox lives OUTSIDE the row (separate wrapper id), so live row
+    replacements (broadcast_updated targets dom_id(analysis)) keep the checkbox. %>
+<div id="<%= dom_id(analysis, :sel) %>" class="analysis-row-wrap">
+  <label class="analysis-row-wrap__select">
+    <%= check_box_tag "analysis_ids[]", analysis.id, false, form: "image_analysis_bulk_form",
+          data: { "bulk-select-target": "checkbox", action: "bulk-select#refresh" } %>
+  </label>
+  <%= render "analyses/analysis_row", analysis: analysis %>
+</div>

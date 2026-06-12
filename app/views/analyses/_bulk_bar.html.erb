@@ -1,0 +1,15 @@
+<%# Bulk bar for the grouped analyses listing: select image cards, then delete
+    ALL analyses of the selected images (custom confirm modal). %>
+<div class="bulk-bar">
+  <label><%= check_box_tag "analysis_select_all", "1", false,
+        data: { action: "bulk-select#toggleAll", "bulk-select-target": "selectAll" } %> Select all</label>
+  <span class="muted" data-bulk-select-target="count">0 selected</span>
+
+  <span class="bulk-bar__actions" data-bulk-select-target="actions" hidden>
+    <%= delete_link(url: bulk_destroy_analyses_path, method: "post", form: "analysis_bulk_form",
+          label: "Delete selected", title: "Delete analyses of selected images?",
+          message: "ALL analyses of the selected images will be permanently deleted.") %>
+  </span>
+
+  <span class="bulk-bar__spacer"></span>
+</div>

@@ -14,8 +14,8 @@
     <%= image_tag @image.file, class: "detail__img" %>
   </figure>
 
-  <%# Run more analyses on this very image, any time. Distinct form id: the
-      create response only resets the generic #analysis_form (studio tab). %>
+  <%# Run more analyses on this very image, any time. The create response
+      prepends the new rows + refreshes the count — no reload needed. %>
   <%= form_with url: analyses_path, method: :post, id: "image_analysis_form", class: "card form detail__form" do %>
     <h3>Run another analysis</h3>
     <%= hidden_field_tag :image_id, @image.id %>
@@ -25,8 +25,26 @@
     <%= submit_tag "Analyze", class: "btn btn--primary" %>
   <% end %>
 
-  <h3 class="records__title"><%= @analyses.size %> <%= "analysis".pluralize(@analyses.size) %></h3>
-  <div id="<%= dom_id(@image, :all_analyses) %>" class="analysis-rows analysis-rows--full">
-    <%= render partial: "analyses/analysis_row", collection: @analyses, as: :analysis %>
+  <div class="detail__form" data-controller="bulk-select">
+    <%= form_with url: bulk_destroy_analyses_path, method: :post, id: "image_analysis_bulk_form",
+          data: { action: "turbo:submit-end->bulk-select#reset" } do %><% end %>
+
+    <%= render "analyses/count_heading", image: @image %>
+
+    <div class="bulk-bar">
+      <label><%= check_box_tag "row_select_all", "1", false,
+            data: { action: "bulk-select#toggleAll", "bulk-select-target": "selectAll" } %> Select all</label>
+      <span class="muted" data-bulk-select-target="count">0 selected</span>
+      <span class="bulk-bar__actions" data-bulk-select-target="actions" hidden>
+        <%= delete_link(url: bulk_destroy_analyses_path, method: "post", form: "image_analysis_bulk_form",
+              label: "Delete selected", title: "Delete selected analyses?",
+              message: "The selected analyses will be permanently deleted.") %>
+      </span>
+      <span class="bulk-bar__spacer"></span>
+    </div>
+
+    <div id="<%= dom_id(@image, :all_analyses) %>" class="analysis-rows analysis-rows--full">
+      <%= render partial: "analyses/selectable_row", collection: @analyses, as: :analysis %>
+    </div>
   </div>
 </div>
