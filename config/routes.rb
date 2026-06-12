@@ -20,10 +20,16 @@ Rails.application.routes.draw do
     end
   end
   resources :decodings, only: %i[index show new create destroy] do
-    delete :all, on: :collection, action: :destroy_all
+    collection do
+      post :bulk_destroy
+      delete :all, action: :destroy_all
+    end
   end
   resources :analyses, only: %i[index show new create destroy] do
-    delete :all, on: :collection, action: :destroy_all
+    collection do
+      post :bulk_destroy # by image_ids (group cards) or analysis_ids (rows)
+      delete :all, action: :destroy_all
+    end
   end
   resources :images, only: %i[index show new create update destroy] do
     member do

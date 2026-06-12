@@ -12,6 +12,20 @@
 </div>
 
 <div class="auth card">
+  <h2>Profile image</h2>
+  <%= form_with url: profile_path, method: :patch, multipart: true, class: "form" do %>
+    <figure class="profile-avatar-current">
+      <%= image_tag (@user.persisted_avatar ? url_for(@user.persisted_avatar) : avatar_path),
+            class: "avatar", alt: "current avatar", width: 80, height: 80 %>
+      <figcaption class="muted">current image</figcaption>
+    </figure>
+    <%# shared/_file_field shows the new image preview before saving. %>
+    <%= render "shared/file_field", name: "user[avatar]", required: true %>
+    <%= submit_tag "Change profile image", class: "btn btn--primary" %>
+  <% end %>
+</div>
+
+<div class="auth card">
   <h2>Change password</h2>
   <%= form_with url: password_change_path, method: :patch, class: "form" do %>
     <label class="field">Current password

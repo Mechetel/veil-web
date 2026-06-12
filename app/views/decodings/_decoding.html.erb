@@ -1,4 +1,9 @@
 <%= tag.div id: dom_id(decoding), class: "record record--#{decoding.status}" do %>
+  <label class="record__select">
+    <%= check_box_tag "decoding_ids[]", decoding.id, false, form: "decoding_bulk_form",
+          data: { "bulk-select-target": "checkbox", action: "bulk-select#refresh" } %>
+  </label>
+
   <header class="record__head">
     <%= link_to "Decoding ##{decoding.id}", decoding_path(decoding), class: "record__title" %>
     <span class="record__head-right">

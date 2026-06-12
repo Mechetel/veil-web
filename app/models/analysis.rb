@@ -29,8 +29,9 @@ class Analysis < ApplicationRecord
     broadcast_remove_to stream_name, target: ActionView::RecordIdentifier.dom_id(image, :analyses)
     broadcast_prepend_to stream_name, target: "analyses",
                                       partial: "analyses/image_analyses", locals: { image: image }
-    broadcast_prepend_to stream_name, target: ActionView::RecordIdentifier.dom_id(image, :all_analyses),
-                                      partial: "analyses/analysis_row", locals: { analysis: self }
+    # The per-image analyses page gets its new (selectable) rows from the
+    # create response, not from a broadcast — a broadcast bare row would
+    # duplicate the wrapper row there.
   end
 
   def broadcast_updated

@@ -2,6 +2,11 @@
 <% latest = image.analyses.order(created_at: :desc).limit(5).to_a %>
 <% total  = image.analyses.count %>
 <%= tag.div id: dom_id(image, :analyses), class: "record record--analyses" do %>
+  <label class="record__select">
+    <%= check_box_tag "image_ids[]", image.id, false, form: "analysis_bulk_form",
+          data: { "bulk-select-target": "checkbox", action: "bulk-select#refresh" } %>
+  </label>
+
   <header class="record__head">
     <%= link_to "Image ##{image.id}", analyses_image_path(image), class: "record__title" %>
     <span class="record__head-right">

@@ -1,0 +1,15 @@
+<%# Bulk bar for decodings: select all + "N selected" + Delete selected (custom
+    confirm modal). The buttons submit the external #decoding_bulk_form. %>
+<div class="bulk-bar">
+  <label><%= check_box_tag "decoding_select_all", "1", false,
+        data: { action: "bulk-select#toggleAll", "bulk-select-target": "selectAll" } %> Select all</label>
+  <span class="muted" data-bulk-select-target="count">0 selected</span>
+
+  <span class="bulk-bar__actions" data-bulk-select-target="actions" hidden>
+    <%= delete_link(url: bulk_destroy_decodings_path, method: "post", form: "decoding_bulk_form",
+          label: "Delete selected", title: "Delete selected decodings?",
+          message: "The selected decodings will be permanently deleted.") %>
+  </span>
+
+  <span class="bulk-bar__spacer"></span>
+</div>
