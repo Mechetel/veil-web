@@ -1,59 +1,18 @@
 <% content_for :title, "Veil Studio" %>
 
-<div class="tabs" data-controller="tabs">
+<%# Tabs are turbo-frame navigations: the frame targets _top (links/forms inside
+    behave like normal page navigation), while the tab links explicitly stay in
+    the frame and advance the URL — only the active tab's data is loaded. %>
+<%= turbo_frame_tag "studio_tabs", target: "_top" do %>
   <nav class="tabs__nav">
-    <button type="button" class="tabs__btn is-active" data-tabs-target="btn" data-action="tabs#show" data-panel="encode">Encode</button>
-    <button type="button" class="tabs__btn" data-tabs-target="btn" data-action="tabs#show" data-panel="decode">Decode</button>
-    <button type="button" class="tabs__btn" data-tabs-target="btn" data-action="tabs#show" data-panel="analyze">Analyze</button>
+    <% { "encode" => "Encode", "decode" => "Decode", "analyze" => "Analyze" }.each do |key, label| %>
+      <%= link_to label, root_path(tab: key),
+            class: "tabs__btn #{'is-active' if @tab == key}",
+            data: { turbo_frame: "studio_tabs", turbo_action: "advance" } %>
+    <% end %>
   </nav>
 
-  <section class="tabs__panel" data-tabs-target="panel" data-panel="encode">
-    <%= render "embeddings/form", embedding: @embedding %>
-    <%= turbo_stream_from Current.user, "embeddings" %>
-    <div class="records__head">
-      <h3 class="records__title">Recent encodings</h3>
-      <% if @embeddings.any? %>
-        <%= delete_link(url: all_embeddings_path, label: "Delete all", title: "Delete ALL encodings?",
-              message: "This permanently removes all your encodings. This cannot be undone.") %>
-      <% end %>
-    </div>
-    <div data-controller="save-counter"
-         data-action="turbo:submit-end@window->save-counter#refresh"
-         data-save-counter-current-value="<%= Current.user.stego_count %>"
-         data-save-counter-limit-value="<%= User::STEGO_LIMIT %>">
-      <%= form_with url: save_to_gallery_embeddings_path, method: :post, id: "embedding_bulk_form",
-            data: { action: "turbo:submit-end->save-counter#reset" } do %><% end %>
-      <%= render "embeddings/save_bar" %>
-      <div id="embeddings" class="records"><%= render @embeddings %></div>
-      <%= render "embeddings/more", pagy: @embeddings_pagy %>
-    </div>
+  <section class="tabs__panel">
+    <%= render "dashboard/#{@tab}_tab" %>
   </section>
-
-  <section class="tabs__panel" data-tabs-target="panel" data-panel="decode" hidden>
-    <%= render "decodings/form", decoding: @decoding %>
-    <%= turbo_stream_from Current.user, "decodings" %>
-    <div class="records__head">
-      <h3 class="records__title">Recent decodings</h3>
-      <% if @decodings.any? %>
-        <%= delete_link(url: all_decodings_path, label: "Delete all", title: "Delete ALL decodings?",
-              message: "This permanently removes all your decodings.") %>
-      <% end %>
-    </div>
-    <div id="decodings" class="records"><%= render @decodings %></div>
-    <%= render "decodings/more", pagy: @decodings_pagy %>
-  </section>
-
-  <section class="tabs__panel" data-tabs-target="panel" data-panel="analyze" hidden>
-    <%= render "analyses/form", analysis: @analysis %>
-    <%= turbo_stream_from Current.user, "analyses" %>
-    <div class="records__head">
-      <h3 class="records__title">Recent analyses</h3>
-      <% if @analyses.any? %>
-        <%= delete_link(url: all_analyses_path, label: "Delete all", title: "Delete ALL analyses?",
-              message: "This permanently removes all your analyses.") %>
-      <% end %>
-    </div>
-    <div id="analyses" class="records"><%= render @analyses %></div>
-    <%= render "analyses/more", pagy: @analyses_pagy %>
-  </section>
-</div>
+<% end %>

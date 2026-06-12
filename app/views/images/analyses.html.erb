@@ -1,0 +1,32 @@
+<% content_for :title, "Analyses · Image ##{@image.id}" %>
+<%= turbo_stream_from Current.user, "analyses" %>
+
+<div class="detail">
+  <%= link_to "← Image ##{@image.id}", image_path(@image), class: "btn" %>
+
+  <div class="detail__meta">
+    <h2>Steganalyses of image #<%= @image.id %></h2>
+    <span class="badge badge--<%= @image.kind %>"><%= @image.kind %></span>
+    <span class="muted"><%= image_meta(@image.file) %></span>
+  </div>
+
+  <figure class="detail__image">
+    <%= image_tag @image.file, class: "detail__img" %>
+  </figure>
+
+  <%# Run more analyses on this very image, any time. Distinct form id: the
+      create response only resets the generic #analysis_form (studio tab). %>
+  <%= form_with url: analyses_path, method: :post, id: "image_analysis_form", class: "card form detail__form" do %>
+    <h3>Run another analysis</h3>
+    <%= hidden_field_tag :image_id, @image.id %>
+    <label class="field">Steganalyzer — a prepared group or a single detector
+      <%= select_tag :analyzer_key, analyzer_select_options, prompt: "— choose —", required: true %>
+    </label>
+    <%= submit_tag "Analyze", class: "btn btn--primary" %>
+  <% end %>
+
+  <h3 class="records__title"><%= @analyses.size %> <%= "analysis".pluralize(@analyses.size) %></h3>
+  <div id="<%= dom_id(@image, :all_analyses) %>" class="analysis-rows analysis-rows--full">
+    <%= render partial: "analyses/analysis_row", collection: @analyses, as: :analysis %>
+  </div>
+</div>

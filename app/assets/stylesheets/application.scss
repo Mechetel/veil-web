@@ -50,12 +50,14 @@ a:hover { text-decoration: underline; }
 // hidden must win over component display rules (bulk bar / save bar).
 [hidden] { display: none !important; }
 
-// ── tabs ────────────────────────────────────────────────────────────────────
+// ── tabs (turbo-frame links) ────────────────────────────────────────────────
 .tabs__nav { display: flex; gap: .5rem; margin-bottom: 1.25rem; }
 .tabs__btn {
-  background: var(--surface); color: var(--muted); border: 1px solid var(--line);
-  padding: .5rem 1.1rem; border-radius: 999px; cursor: pointer; font-size: .95rem;
+  display: inline-block; background: var(--surface); color: var(--muted);
+  border: 1px solid var(--line); padding: .5rem 1.1rem; border-radius: 999px;
+  cursor: pointer; font-size: .95rem;
 }
+.tabs__btn:hover { text-decoration: none; border-color: var(--primary); }
 .tabs__btn.is-active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
 // ── forms / cards ───────────────────────────────────────────────────────────
@@ -195,6 +197,20 @@ input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px
 .modal__message { color: var(--muted); margin-bottom: 1.2rem; }
 .modal__actions { display: flex; justify-content: flex-end; gap: .6rem; align-items: center; }
 .modal__actions form { display: inline; }
+
+// ── analyses grouped by image ───────────────────────────────────────────────
+.records--analyses { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.analysis-rows { display: flex; flex-direction: column; gap: .35rem; width: 100%; }
+.analysis-rows--full { width: 100%; max-width: 460px; }
+.analysis-row {
+  display: flex; align-items: center; gap: .5rem; font-size: .82rem;
+  background: var(--surface-2); border-radius: 8px; padding: .35rem .55rem;
+}
+.analysis-row__key { font-weight: 600; }
+.analysis-row__spacer { flex: 1; }
+.analysis-row__time { font-size: .72rem; }
+.prob-bar--mini { display: inline-block; width: 56px; height: 6px; flex: none; }
+.detail__form { width: 100%; max-width: 460px; }
 
 // ── load more ───────────────────────────────────────────────────────────────
 .load-more { margin: .9rem 0; text-align: center; }

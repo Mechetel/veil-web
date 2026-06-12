@@ -1,8 +1,8 @@
 <%= form_with url: analyses_path, method: :post, multipart: true, id: "analysis_form", class: "card form" do %>
-  <h2>Run a steganalyzer</h2>
+  <h2>Run steganalysis</h2>
 
-  <label class="field">Steganalyzer
-    <%= select_tag :analyzer_key, options_for_select(analyzer_options), prompt: "— choose a detector —", required: true %>
+  <label class="field">Steganalyzer — a prepared group or a single detector
+    <%= select_tag :analyzer_key, analyzer_select_options, prompt: "— choose —", required: true %>
   </label>
 
   <%= render "shared/image_source" %>

@@ -16,8 +16,9 @@ class EmbeddingsController < ApplicationController
   end
 
   def create
-    input = find_or_build_input_image(default_kind: :cover)
-    return redirect_to(root_path, alert: "Please choose or upload a cover image.") if input.nil?
+    input = require_input_image(find_or_build_input_image(default_kind: :cover),
+                                "Please choose or upload a cover image.")
+    return if input.nil?
 
     Current.user.embeddings.create!(
       input_image: input,

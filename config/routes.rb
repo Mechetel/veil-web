@@ -26,7 +26,10 @@ Rails.application.routes.draw do
     delete :all, on: :collection, action: :destroy_all
   end
   resources :images, only: %i[index show new create update destroy] do
-    member { get :convert }
+    member do
+      get :convert
+      get :analyses # all steganalyses of one image + run-more form
+    end
     collection do
       post :bulk_destroy
       post :bulk_update_model

@@ -1,2 +1,2 @@
-<%= turbo_stream.append "analyses" do %><%= render @analyses %><% end %>
-<%= turbo_stream.replace "analyses_more", partial: "analyses/more", locals: { pagy: @analyses_pagy } %>
+<%= turbo_stream.append "analyses" do %><%= render partial: "analyses/image_analyses", collection: @images, as: :image %><% end %>
+<%= turbo_stream.replace "analyses_more", partial: "analyses/more", locals: { pagy: @images_pagy } %>

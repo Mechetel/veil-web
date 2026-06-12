@@ -19,13 +19,13 @@
     <% if @embedding.input_image&.file&.attached? %>
       <figure class="detail__image">
         <%= image_tag @embedding.input_image.file, class: "detail__img" %>
-        <figcaption class="muted">Cover</figcaption>
+        <figcaption class="muted">Cover · <%= image_meta(@embedding.input_image.file) %></figcaption>
       </figure>
     <% end %>
     <% if @embedding.succeeded? && @embedding.stego.attached? %>
       <figure class="detail__image">
         <%= image_tag @embedding.stego, class: "detail__img" %>
-        <figcaption class="muted">Stego</figcaption>
+        <figcaption class="muted">Stego · <%= image_meta(@embedding.stego) %></figcaption>
       </figure>
     <% end %>
   </div>

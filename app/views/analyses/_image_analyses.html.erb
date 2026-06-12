@@ -1,0 +1,25 @@
+<%# One photo with its 5 most recent steganalyses (the grouped index card). %>
+<% latest = image.analyses.order(created_at: :desc).limit(5).to_a %>
+<% total  = image.analyses.count %>
+<%= tag.div id: dom_id(image, :analyses), class: "record record--analyses" do %>
+  <header class="record__head">
+    <%= link_to "Image ##{image.id}", analyses_image_path(image), class: "record__title" %>
+    <span class="record__head-right">
+      <span class="badge badge--<%= image.kind %>"><%= image.kind %></span>
+    </span>
+  </header>
+
+  <div class="record__meta"><span class="muted"><%= image_meta(image.file) %></span></div>
+
+  <div class="record__body">
+    <%= link_to analyses_image_path(image) do %>
+      <%= image_tag image.file, class: "thumb", loading: "lazy" %>
+    <% end %>
+    <div class="analysis-rows">
+      <%= render partial: "analyses/analysis_row", collection: latest, as: :analysis %>
+    </div>
+    <div class="record__actions">
+      <%= link_to "All #{total} #{'analysis'.pluralize(total)} →", analyses_image_path(image), class: "btn btn--small" %>
+    </div>
+  </div>
+<% end %>
