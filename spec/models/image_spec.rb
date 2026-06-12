@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Image, type: :model do
   it "has kind and origin enums" do
     expect(Image.kinds.keys).to contain_exactly("cover", "stego")
-    expect(Image.origins.keys).to contain_exactly("uploaded", "encoded")
+    expect(Image.origins.keys).to contain_exactly("uploaded", "encoded", "stock")
   end
 
   it "requires an attached file" do

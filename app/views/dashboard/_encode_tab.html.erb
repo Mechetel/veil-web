@@ -1,0 +1,19 @@
+<%= render "embeddings/form", embedding: @embedding %>
+<%= turbo_stream_from Current.user, "embeddings" %>
+<div class="records__head">
+  <h3 class="records__title">Recent encodings</h3>
+  <% if @embeddings.any? %>
+    <%= delete_link(url: all_embeddings_path, label: "Delete all", title: "Delete ALL encodings?",
+          message: "This permanently removes all your encodings. This cannot be undone.") %>
+  <% end %>
+</div>
+<div data-controller="save-counter"
+     data-action="turbo:submit-end@window->save-counter#refresh"
+     data-save-counter-current-value="<%= Current.user.stego_count %>"
+     data-save-counter-limit-value="<%= User::STEGO_LIMIT %>">
+  <%= form_with url: save_to_gallery_embeddings_path, method: :post, id: "embedding_bulk_form",
+        data: { action: "turbo:submit-end->save-counter#reset" } do %><% end %>
+  <%= render "embeddings/save_bar" %>
+  <div id="embeddings" class="records"><%= render @embeddings %></div>
+  <%= render "embeddings/more", pagy: @embeddings_pagy %>
+</div>

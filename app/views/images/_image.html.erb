@@ -11,6 +11,7 @@
   <div class="gallery__meta">
     <span class="badge badge--<%= image.kind %>"><%= image.kind %></span>
     <span class="muted">#<%= image.id %></span>
+    <span class="muted"><%= image_meta(image.file) %></span>
   </div>
 
   <% if image.stego? %>

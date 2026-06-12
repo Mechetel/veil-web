@@ -1,21 +1,21 @@
 <% content_for :title, "Gallery" %>
 <h1>Gallery</h1>
 
-<div class="tabs" data-controller="tabs">
+<%# Tabs are turbo-frame navigations: the frame targets _top (image links, forms
+    and downloads inside behave like normal page navigation), while the tab
+    links stay in the frame and advance the URL. %>
+<%= turbo_frame_tag "gallery_tabs", target: "_top" do %>
   <nav class="tabs__nav">
-    <button type="button" class="tabs__btn is-active" data-tabs-target="btn" data-action="tabs#show" data-panel="covers">Covers</button>
-    <button type="button" class="tabs__btn" data-tabs-target="btn" data-action="tabs#show" data-panel="stegos">Stegos</button>
+    <% { "cover" => "Covers", "stego" => "Stegos" }.each do |key, label| %>
+      <%= link_to label, images_path(tab: key),
+            class: "tabs__btn #{'is-active' if @tab == key}",
+            data: { turbo_frame: "gallery_tabs", turbo_action: "advance" } %>
+    <% end %>
   </nav>
 
-  <section class="tabs__panel" data-tabs-target="panel" data-panel="covers">
-    <%= render "images/count", kind: "cover" %>
-    <%= render "images/cover_upload" %>
-    <%= render "images/collection", kind: "cover", images: @covers, pagy: @covers_pagy %>
+  <section class="tabs__panel">
+    <%= render "images/count", kind: @tab %>
+    <%= render "images/#{@tab}_upload" %>
+    <%= render "images/collection", kind: @tab, images: @images, pagy: @images_pagy %>
   </section>
-
-  <section class="tabs__panel" data-tabs-target="panel" data-panel="stegos" hidden>
-    <%= render "images/count", kind: "stego" %>
-    <%= render "images/stego_upload" %>
-    <%= render "images/collection", kind: "stego", images: @stegos, pagy: @stegos_pagy %>
-  </section>
-</div>
+<% end %>

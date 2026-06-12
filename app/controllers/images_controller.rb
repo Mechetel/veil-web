@@ -1,9 +1,12 @@
 class ImagesController < ApplicationController
-  before_action :set_image, only: %i[show update destroy convert]
+  before_action :set_image, only: %i[show update destroy convert analyses]
 
+  # Gallery tabs are turbo-frame navigations (?tab=cover|stego): each request
+  # loads only the active kind.
   def index
-    @covers_pagy, @covers = pagy(Current.user.images.cover.gallery.with_attached_file, limit: 8, page_key: "cover_page")
-    @stegos_pagy, @stegos = pagy(Current.user.images.stego.gallery.with_attached_file, limit: 8, page_key: "stego_page")
+    @tab = params[:tab].presence_in(%w[cover stego]) || "cover"
+    @images_pagy, @images = pagy(Current.user.images.where(kind: @tab).gallery.with_attached_file,
+                                 limit: 8, page_key: "#{@tab}_page")
     respond_to do |format|
       format.html
       format.turbo_stream # load-more
@@ -23,14 +26,17 @@ class ImagesController < ApplicationController
     metadata  = (kind == "stego" && model_key) ? { "model_key" => model_key } : {}
 
     created = []
-    skipped = 0
+    problems = []
     files.each do |file|
       img = Current.user.images.new(kind: kind, origin: :uploaded, metadata: metadata)
       img.file.attach(file)
-      img.save ? (created << img) : (skipped += 1)
+      img.save ? (created << img) : (problems |= img.errors.full_messages)
     end
-    flash.now[:notice] = "#{created.size} #{'image'.pluralize(created.size)} added" +
-                         (skipped.positive? ? " · #{skipped} skipped (gallery full)" : "")
+
+    skipped = files.size - created.size
+    summary = "#{created.size} #{'image'.pluralize(created.size)} added"
+    summary += " · #{skipped} skipped: #{problems.to_sentence}" if skipped.positive?
+    created.any? ? (flash.now[:notice] = summary) : (flash.now[:alert] = summary)
 
     respond_to do |format|
       format.turbo_stream do
@@ -39,7 +45,7 @@ class ImagesController < ApplicationController
                                turbo_stream.replace("#{kind}_count", partial: "images/count", locals: { kind: kind }),
                                turbo_stream.update("flash", partial: "shared/flash") ]
       end
-      format.html { redirect_to images_path, notice: flash.now[:notice] }
+      format.html { redirect_to images_path, notice: flash.now[:notice], alert: flash.now[:alert] }
     end
   end
 
@@ -74,6 +80,11 @@ class ImagesController < ApplicationController
   # Modal (remote_modal frame) for converting a cover to stego.
   def convert
     render layout: false
+  end
+
+  # All steganalyses of one image, plus a form to run more (member GET).
+  def analyses
+    @analyses = @image.analyses.recent
   end
 
   def destroy

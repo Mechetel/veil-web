@@ -1,0 +1,11 @@
+<%= render "decodings/form", decoding: @decoding %>
+<%= turbo_stream_from Current.user, "decodings" %>
+<div class="records__head">
+  <h3 class="records__title">Recent decodings</h3>
+  <% if @decodings.any? %>
+    <%= delete_link(url: all_decodings_path, label: "Delete all", title: "Delete ALL decodings?",
+          message: "This permanently removes all your decodings.") %>
+  <% end %>
+</div>
+<div id="decodings" class="records"><%= render @decodings %></div>
+<%= render "decodings/more", pagy: @decodings_pagy %>

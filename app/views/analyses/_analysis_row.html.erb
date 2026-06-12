@@ -1,0 +1,21 @@
+<%# Compact one-line analysis result. Used in the per-image group card (last 5)
+    and on the per-image analyses page (all) — same dom_id, so live row updates
+    work on both. %>
+<div id="<%= dom_id(analysis) %>" class="analysis-row">
+  <span class="analysis-row__key"><%= analysis.analyzer_key %></span>
+
+  <% if analysis.in_flight? %>
+    <%= status_badge(analysis) %>
+  <% elsif analysis.succeeded? %>
+    <strong class="verdict verdict--<%= analysis.label %>"><%= analysis.label&.titleize %></strong>
+    <span class="muted">p=<%= number_with_precision(analysis.prob_stego.to_f, precision: 3) %></span>
+    <span class="prob-bar prob-bar--mini"><span style="width: <%= (analysis.prob_stego.to_f * 100).round %>%"></span></span>
+  <% else %>
+    <span class="error" title="<%= analysis.error_message %>">failed</span>
+  <% end %>
+
+  <span class="analysis-row__spacer"></span>
+  <span class="muted analysis-row__time"><%= l analysis.created_at, format: :short %></span>
+  <%= delete_link(url: analysis_path(analysis), label: "✕", css: "record__del",
+        title: "Delete this analysis?", message: "This permanently removes the analysis.") %>
+</div>

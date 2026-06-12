@@ -1,6 +1,6 @@
 <div id="analyses_more" class="load-more">
   <% if pagy&.next %>
-    <%= button_to "Load more", analyses_path(page: pagy.next), method: :get,
+    <%= button_to "Load more", analyses_path(analyses_page: pagy.next), method: :get,
           form: { data: { turbo_stream: true } }, class: "btn" %>
   <% end %>
 </div>

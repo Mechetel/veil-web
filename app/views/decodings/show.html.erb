@@ -12,7 +12,7 @@
   <% if @decoding.input_image&.file&.attached? %>
     <figure class="detail__image">
       <%= image_tag @decoding.input_image.file, class: "detail__img" %>
-      <figcaption class="muted">Stego</figcaption>
+      <figcaption class="muted">Stego · <%= image_meta(@decoding.input_image.file) %></figcaption>
     </figure>
   <% end %>
 

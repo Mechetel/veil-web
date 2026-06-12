@@ -1,0 +1,13 @@
+<%= render "analyses/form", analysis: @analysis %>
+<%= turbo_stream_from Current.user, "analyses" %>
+<div class="records__head">
+  <h3 class="records__title">Analyzed images</h3>
+  <% if @images.any? %>
+    <%= delete_link(url: all_analyses_path, label: "Delete all", title: "Delete ALL analyses?",
+          message: "This permanently removes all your analyses.") %>
+  <% end %>
+</div>
+<div id="analyses" class="records records--analyses">
+  <%= render partial: "analyses/image_analyses", collection: @images, as: :image %>
+</div>
+<%= render "analyses/more", pagy: @images_pagy %>

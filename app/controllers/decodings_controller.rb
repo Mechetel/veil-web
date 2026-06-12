@@ -16,8 +16,9 @@ class DecodingsController < ApplicationController
   end
 
   def create
-    input = find_or_build_input_image(default_kind: :stego)
-    return redirect_to(root_path, alert: "Please choose or upload a stego image.") if input.nil?
+    input = require_input_image(find_or_build_input_image(default_kind: :stego),
+                                "Please choose or upload a stego image.")
+    return if input.nil?
 
     Current.user.decodings.create!(input_image: input, params: { "model_key" => params[:model_key] })
 

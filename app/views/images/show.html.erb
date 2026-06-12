@@ -10,10 +10,12 @@
   <div class="detail__meta">
     <span class="badge badge--<%= @image.kind %>"><%= @image.kind %></span>
     <span class="muted"><%= @image.origin %></span>
+    <span class="muted"><%= image_meta(@image.file) %></span>
   </div>
 
   <div class="detail__actions">
     <%= link_to "Download", rails_blob_path(@image.file, disposition: "attachment"), class: "btn" %>
+    <%= link_to "Steganalyses (#{@image.analyses.count})", analyses_image_path(@image), class: "btn" %>
     <%= delete_link(url: image_path(@image, redirect: 1), navigate: true, css: "btn btn--danger", title: "Delete this image?",
           message: "Deleting this image also deletes every encoding, decoding and analysis that uses it.") %>
   </div>

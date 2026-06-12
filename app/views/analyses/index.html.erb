@@ -6,5 +6,7 @@
 </div>
 <%= link_to "← Studio", root_path, class: "btn btn--small" %>
 <%= turbo_stream_from Current.user, "analyses" %>
-<div id="analyses" class="records"><%= render @analyses %></div>
-<%= render "analyses/more", pagy: @analyses_pagy %>
+<div id="analyses" class="records records--analyses">
+  <%= render partial: "analyses/image_analyses", collection: @images, as: :image %>
+</div>
+<%= render "analyses/more", pagy: @images_pagy %>
