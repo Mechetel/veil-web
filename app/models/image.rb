@@ -1,9 +1,4 @@
 class Image < ApplicationRecord
-  # Constraints for files users upload from their system (server-side source of
-  # truth; mirrored client-side in file_input/image_source Stimulus controllers).
-  ALLOWED_UPLOAD_TYPES = %w[image/png image/jpeg].freeze
-  MAX_UPLOAD_SIZE      = 2.megabytes
-
   belongs_to :user
   has_one_attached :file
 
@@ -21,9 +16,9 @@ class Image < ApplicationRecord
 
   validates :file, presence: true
   validate :within_kind_capacity
-  # Only user-system uploads are constrained; core-generated stegos (encoded)
-  # and the bundled defaults (stock) are trusted.
-  validate :uploaded_file_constraints, if: :uploaded?
+  # Only user-system uploads are constrained (ImageUploadValidator: PNG/JPG,
+  # ≤2 MB); core-generated stegos (encoded) and bundled defaults (stock) are trusted.
+  validates :file, image_upload: true, if: :uploaded?
 
   scope :gallery, -> { order(created_at: :desc) }
 
@@ -51,15 +46,5 @@ class Image < ApplicationRecord
     return if used < limit
 
     errors.add(:base, "#{kind.titleize} gallery is full (#{limit} max). Delete some to add more.")
-  end
-
-  def uploaded_file_constraints
-    return unless file.attached?
-
-    unless file.content_type.in?(ALLOWED_UPLOAD_TYPES)
-      errors.add(:file, "must be a PNG or JPG image")
-      return
-    end
-    errors.add(:file, "is too large (maximum is 2 MB)") if file.byte_size > MAX_UPLOAD_SIZE
   end
 end

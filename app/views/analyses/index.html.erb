@@ -6,6 +6,8 @@
 </div>
 <%= link_to "← Studio", root_path, class: "btn btn--small" %>
 <%= turbo_stream_from Current.user, "analyses" %>
+
+<%= render "analyses/form", analysis: @analysis %>
 <div data-controller="bulk-select">
   <%= form_with url: bulk_destroy_analyses_path, method: :post, id: "analysis_bulk_form",
         data: { action: "turbo:submit-end->bulk-select#reset" } do %><% end %>
