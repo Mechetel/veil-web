@@ -60,6 +60,18 @@ RSpec.describe "Bulk actions & profile avatar", type: :request do
       expect(response.body).to include("sel_analysis_#{analysis.id}") # selectable wrapper
       expect(response.body).to include("analyses_count_image_#{img.id}")
     end
+
+    it "bumps the image's group card in the create response (index/tab live update)" do
+      img = create(:image, user: user)
+      post analyses_path, params: { analyzer_key: "xunet-stego", image_id: img.id },
+                          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      expect(response.body).to include(%(target="analyses")).and include("analyses_image_#{img.id}")
+    end
+
+    it "shows the run-analysis form on the analyses index page" do
+      get analyses_path
+      expect(response.body).to include("analysis_form").and include("Run steganalysis")
+    end
   end
 
   describe "profile avatar upload" do

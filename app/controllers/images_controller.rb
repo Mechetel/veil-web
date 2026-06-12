@@ -19,7 +19,7 @@ class ImagesController < ApplicationController
   def create
     files = Array(params[:images]).compact_blank
     files << params[:image] if params[:image].present?
-    return redirect_to(images_path, alert: "Choose at least one image.") if files.empty?
+    return flash_error("Choose at least one image.", fallback_location: images_path) if files.empty?
 
     kind      = params[:kind].to_s.presence_in(%w[cover stego]) || "cover"
     model_key = params[:model_key].presence
@@ -43,7 +43,7 @@ class ImagesController < ApplicationController
         render turbo_stream: created.reverse.map { |img| turbo_stream.prepend("#{kind}s", partial: "images/image", locals: { image: img }) } +
                              [ turbo_stream.replace("#{kind}_upload", partial: "images/#{kind}_upload"),
                                turbo_stream.replace("#{kind}_count", partial: "images/count", locals: { kind: kind }),
-                               turbo_stream.update("flash", partial: "shared/flash") ]
+                               flash_stream ]
       end
       format.html { redirect_to images_path, notice: flash.now[:notice], alert: flash.now[:alert] }
     end
@@ -64,14 +64,14 @@ class ImagesController < ApplicationController
             [ turbo_stream.replace(@image, partial: "images/image", locals: { image: @image }) ]
           end
           flash.now[:notice] = was_kind == @image.kind ? "Image updated" : "Converted to #{@image.kind}"
-          render turbo_stream: card + count_streams + [ turbo_stream.update("flash", partial: "shared/flash") ]
+          render turbo_stream: card + count_streams + [ flash_stream ]
         end
         format.html { redirect_to images_path, notice: "Image updated" }
       end
     else
       flash.now[:alert] = @image.errors.full_messages.to_sentence
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.update("flash", partial: "shared/flash") }
+        format.turbo_stream { render turbo_stream: flash_stream }
         format.html { redirect_to images_path, alert: flash.now[:alert] }
       end
     end
@@ -97,7 +97,7 @@ class ImagesController < ApplicationController
         render turbo_stream: [
           turbo_stream.remove(@image),
           turbo_stream.replace("#{kind}_count", partial: "images/count", locals: { kind: kind }),
-          turbo_stream.update("flash", partial: "shared/flash")
+          flash_stream
         ]
       end
       format.html { redirect_to images_path, notice: "Image deleted" }
@@ -113,7 +113,7 @@ class ImagesController < ApplicationController
         render turbo_stream: [
           turbo_stream.update("#{kind}s", ""),
           turbo_stream.replace("#{kind}_count", partial: "images/count", locals: { kind: kind }),
-          turbo_stream.update("flash", partial: "shared/flash")
+          flash_stream
         ]
       end
       format.html { redirect_to images_path, notice: "All #{kind} images deleted" }
@@ -126,7 +126,7 @@ class ImagesController < ApplicationController
     flash.now[:notice] = "Deleted #{images.size} #{'image'.pluralize(images.size)}"
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: images.map { |img| turbo_stream.remove(img) } + count_streams + [ turbo_stream.update("flash", partial: "shared/flash") ]
+        render turbo_stream: images.map { |img| turbo_stream.remove(img) } + count_streams + [ flash_stream ]
       end
       format.html { redirect_to images_path, notice: flash.now[:notice] }
     end
@@ -138,7 +138,7 @@ class ImagesController < ApplicationController
     flash.now[:notice] = "Updated #{images.size} #{'image'.pluralize(images.size)}"
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: images.map { |img| turbo_stream.replace(img, partial: "images/image", locals: { image: img }) } + [ turbo_stream.update("flash", partial: "shared/flash") ]
+        render turbo_stream: images.map { |img| turbo_stream.replace(img, partial: "images/image", locals: { image: img }) } + [ flash_stream ]
       end
       format.html { redirect_to images_path, notice: flash.now[:notice] }
     end

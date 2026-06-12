@@ -1,3 +1,6 @@
+<%# Each flash entry is an individual self-dismissing toast (see _toast +
+    toast_controller.js). Turbo responses PREPEND this partial into #flash so
+    the newest toast lands on top and earlier ones stay until pruned/expired. %>
 <% flash.each do |type, message| %>
-  <div class="flash flash--<%= type %>"><%= message %></div>
+  <%= render "shared/toast", type: type, message: message %>
 <% end %>

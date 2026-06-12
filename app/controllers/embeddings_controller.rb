@@ -1,4 +1,6 @@
 class EmbeddingsController < ApplicationController
+  include TaskDeletion # destroy / bulk_destroy / destroy_all
+
   def index
     @embeddings_pagy, @embeddings = pagy(Current.user.embeddings.recent.includes(input_image: { file_attachment: :blob }), limit: 20)
     respond_to do |format|
@@ -20,17 +22,18 @@ class EmbeddingsController < ApplicationController
                                 "Please choose or upload a cover image.")
     return if input.nil?
 
-    Current.user.embeddings.create!(
+    record = Current.user.embeddings.new(
       input_image: input,
       params: { "model_key" => params[:model_key], "message" => params[:message] }
     )
+    return flash_error(record.errors.full_messages.to_sentence) unless record.save
 
     respond_to do |format|
       format.turbo_stream do
         flash.now[:notice] = "Encoding queued"
         render turbo_stream: [
           turbo_stream.replace("embedding_form", partial: "embeddings/form", locals: { embedding: Embedding.new }),
-          turbo_stream.update("flash", partial: "shared/flash")
+          flash_stream
         ]
       end
       format.html { redirect_to root_path, notice: "Encoding queued" }
@@ -54,51 +57,18 @@ class EmbeddingsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        # Re-render each saved card so it immediately shows the "In gallery" state
-        # (checkbox gone) without a reload; the save-counter controller resets the
-        # bar on turbo:submit-end. update (not replace) keeps the .flashes wrapper.
-        render turbo_stream: [
-          turbo_stream.update("flash", partial: "shared/flash")
-        ] + saved.map { |e| turbo_stream.replace(e, partial: "embeddings/embedding", locals: { embedding: e }) }
+        # Re-render each saved card so it immediately shows the "In gallery"
+        # state (checkbox gone) without a reload; the save-counter controller
+        # resets the bar on turbo:submit-end.
+        render turbo_stream: [ flash_stream ] +
+                             saved.map { |e| turbo_stream.replace(e, partial: "embeddings/embedding", locals: { embedding: e }) }
       end
       format.html { redirect_back fallback_location: root_path, notice: flash.now[:notice], alert: flash.now[:alert] }
     end
   end
 
-  def bulk_destroy
-    records = Current.user.embeddings.where(id: Array(params[:embedding_ids]).compact_blank).to_a
-    records.each(&:destroy)
-    flash.now[:notice] = "Deleted #{records.size} #{'encoding'.pluralize(records.size)}"
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: records.map { |r| turbo_stream.remove(r) } +
-                             [ turbo_stream.update("flash", partial: "shared/flash") ]
-      end
-      format.html { redirect_to root_path, notice: flash.now[:notice] }
-    end
-  end
+  private
 
-  def destroy
-    record = Current.user.embeddings.find(params[:id])
-    record.destroy
-    return redirect_to(embeddings_path, notice: "Encoding deleted") if params[:redirect].present?
-    respond_to do |format|
-      format.turbo_stream do
-        flash.now[:notice] = "Encoding deleted"
-        render turbo_stream: [ turbo_stream.remove(record), turbo_stream.update("flash", partial: "shared/flash") ]
-      end
-      format.html { redirect_to root_path, notice: "Encoding deleted" }
-    end
-  end
-
-  def destroy_all
-    Current.user.embeddings.destroy_all
-    respond_to do |format|
-      format.turbo_stream do
-        flash.now[:notice] = "All encodings deleted"
-        render turbo_stream: [ turbo_stream.update("embeddings", ""), turbo_stream.update("flash", partial: "shared/flash") ]
-      end
-      format.html { redirect_to root_path, notice: "All encodings deleted" }
-    end
-  end
+  # The UI calls embeddings "encodings" (::Encoding is a Ruby core class).
+  def human_record_name = "Encoding"
 end
